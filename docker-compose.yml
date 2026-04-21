@@ -1,0 +1,137 @@
+version: '3.8'
+
+services:
+
+  #Infrastructure
+
+  mysql:
+    image: mysql:8.0
+    container_name: vellum-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: vellum
+      MYSQL_PASSWORD: vellum123
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - vellum-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7.0
+    container_name: vellum-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - vellum-network
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: vellum-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"    # RabbitMQ dashboard → browser
+    environment:
+      RABBITMQ_DEFAULT_USER: vellum
+      RABBITMQ_DEFAULT_PASS: vellum123
+    networks:
+      - vellum-network
+
+  #Microservices
+
+  api-gateway:
+    build: ./backend/api-gateway
+    container_name: vellum-gateway
+    ports:
+      - "8080:8080"     # ← Angular always talks to this port
+    environment:
+      AUTH_SERVICE_URL: http://auth-service:8081
+      POST_SERVICE_URL: http://post-service:8082
+    depends_on:
+      - auth-service
+    networks:
+      - vellum-network
+
+  auth-service:
+    build: ./backend/auth-service
+    container_name: vellum-auth
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/vellum_auth
+      SPRING_DATASOURCE_USERNAME: vellum
+      SPRING_DATASOURCE_PASSWORD: vellum123
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - vellum-network
+
+  post-service:
+    build: ./backend/post-service
+    container_name: vellum-post
+    ports:
+      - "8082:8082"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/vellum_post
+      SPRING_DATASOURCE_USERNAME: vellum
+      SPRING_DATASOURCE_PASSWORD: vellum123
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - vellum-network
+
+  comment-service:
+    build: ./backend/comment-service
+    container_name: vellum-comment
+    ports:
+      - "8083:8083"
+    networks:
+      - vellum-network
+
+  category-service:
+    build: ./backend/category-service
+    container_name: vellum-category
+    ports:
+      - "8084:8084"
+    networks:
+      - vellum-network
+
+  media-service:
+    build: ./backend/media-service
+    container_name: vellum-media
+    ports:
+      - "8085:8085"
+    networks:
+      - vellum-network
+
+  newsletter-service:
+    build: ./backend/newsletter-service
+    container_name: vellum-newsletter
+    ports:
+      - "8086:8086"
+    networks:
+      - vellum-network
+
+  notification-service:
+    build: ./backend/notification-service
+    container_name: vellum-notification
+    ports:
+      - "8087:8087"
+    networks:
+      - vellum-network
+
+volumes:
+  mysql-data:
+
+networks:
+  vellum-network:
+    driver: bridge
