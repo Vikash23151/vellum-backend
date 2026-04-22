@@ -1,0 +1,144 @@
+server:
+  port: 8080   # The ONE port Angular talks to
+
+spring:
+  application:
+    name: api-gateway
+
+  cloud:
+    gateway:
+      # Global CORS — Angular on port 4200 can call this gateway
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins:
+              - "http://localhost:4200"   # Angular dev server
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders: "*"
+            allowCredentials: true
+
+      # Route definitions
+      # Each route says: "if URL matches this pattern → send to this service"
+      routes:
+
+        # Auth Service
+        # Public routes (no JWT needed)
+        - id: auth-public
+          uri: http://localhost:8081
+          predicates:
+            - Path=/api/auth/register, /api/auth/login, /api/auth/refresh
+          # No JwtAuthFilter here → these are public
+
+        # Protected auth routes (JWT needed)
+        - id: auth-protected
+          uri: http://localhost:8081
+          predicates:
+            - Path=/api/auth/**
+          filters:
+            - name: JwtAuthFilter   # ← validates JWT before forwarding
+
+        # Post Service
+        # Public: reading posts doesn't need login
+        - id: post-public-read
+          uri: http://localhost:8082
+          predicates:
+            - Path=/api/posts/**
+            - Method=GET
+          # No filter for GET requests
+
+        # Protected: creating/editing posts needs login
+        - id: post-protected-write
+          uri: http://localhost:8082
+          predicates:
+            - Path=/api/posts/**
+            - Method=POST, PUT, DELETE
+          filters:
+            - name: JwtAuthFilter
+
+        # Comment Service
+        - id: comment-public
+          uri: http://localhost:8083
+          predicates:
+            - Path=/api/comments/**
+            - Method=GET
+
+        - id: comment-protected
+          uri: http://localhost:8083
+          predicates:
+            - Path=/api/comments/**
+            - Method=POST, PUT, DELETE
+          filters:
+            - name: JwtAuthFilter
+
+        # Category Service
+        - id: category-public
+          uri: http://localhost:8084
+          predicates:
+            - Path=/api/categories/**, /api/tags/**
+            - Method=GET
+
+        - id: category-protected
+          uri: http://localhost:8084
+          predicates:
+            - Path=/api/categories/**, /api/tags/**
+            - Method=POST, PUT, DELETE
+          filters:
+            - name: JwtAuthFilter
+
+        # Media Service
+        - id: media-protected
+          uri: http://localhost:8085
+          predicates:
+            - Path=/api/media/**
+          filters:
+            - name: JwtAuthFilter
+
+        # Newsletter Service
+        - id: newsletter-public
+          uri: http://localhost:8086
+          predicates:
+            - Path=/api/newsletter/subscribe, /api/newsletter/confirm/**,
+              /api/newsletter/unsubscribe/**
+            - Method=POST, GET
+
+        - id: newsletter-protected
+          uri: http://localhost:8086
+          predicates:
+            - Path=/api/newsletter/**
+          filters:
+            - name: JwtAuthFilter
+
+        # Notification Service
+        - id: notification-protected
+          uri: http://localhost:8087
+          predicates:
+            - Path=/api/notifications/**
+          filters:
+            - name: JwtAuthFilter
+
+# JWT secret — must be IDENTICAL to auth-service's secret
+# Gateway uses this to validate tokens without calling auth-service
+jwt:
+  secret: ${JWT_SECRET:vellumSuperSecretKeyThatIsAtLeast256BitsLong1234567890}
+
+# ACTUATOR (health checks)
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+
+# LOGGING
+logging:
+  level:
+    com.vellum.apigateway: DEBUG
+    org.springframework.cloud.gateway: DEBUG
+    org.springframework.cloud.gateway.route: TRACE
