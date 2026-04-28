@@ -1,0 +1,65 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: vellum-auth-service
+
+  datasource:
+    # createDatabaseIfNotExist=true: creates DB if it doesn't exist
+    # useSSL=false: no SSL for local dev (use true in production)
+    # allowPublicKeyRetrieval=true: needed for MySQL 8 authentication
+    url: jdbc:mysql://localhost:3306/vellum_auth?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
+    username: vellum
+    password: vellum123
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+    # Connection pool settings
+    # HikariCP is Spring Boot's default connection pool
+    hikari:
+      maximum-pool-size: 10      # max 10 simultaneous DB connections
+      minimum-idle: 2            # keep 2 connections warm
+      connection-timeout: 30000  # 30 seconds to get connection
+      idle-timeout: 600000       # close idle connections after 10 min
+
+  jpa:
+    hibernate:
+      # update: adds new columns/tables but never deletes existing ones
+      # create: drops and recreates all tables on startup (dev only)
+      # validate: checks schema matches entities but makes no changes
+      # none: do nothing (production)
+      ddl-auto: update
+    show-sql: true    # logs every SQL query (set false in production)
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        format_sql: true   # pretty-print SQL in logs
+
+#  JWT
+# MUST match api-gateway jwt.secret exactly!
+jwt:
+  secret: ${JWT_SECRET:vellumSuperSecretKeyThatIsAtLeast256BitsLong1234567890}
+  expiry: 86400000   # 24 hours in milliseconds
+
+# ACTUATOR
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+
+# SWAGGER
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+
+# LOGGING
+logging:
+  level:
+    com.vellum.auth: DEBUG
+    org.springframework.security: DEBUG
