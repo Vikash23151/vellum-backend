@@ -1,0 +1,75 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: vellum-post-service
+
+  # MySQL
+  datasource:
+    url: jdbc:mysql://localhost:3306/vellum_post?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
+    username: vellum
+    password: vellum123
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 15
+      minimum-idle: 3
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        format_sql: true
+
+  # Redis
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      # password: (set if Redis has auth enabled)
+      timeout: 2000ms    # connection timeout
+      lettuce:           # Lettuce is Spring Boot's default Redis client
+        pool:
+          max-active: 8  # max concurrent connections
+
+  # RabbitMQ
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: vellum
+    password: vellum123
+    virtual-host: /
+    # If RabbitMQ is down, retry connecting
+    connection-timeout: 5000ms
+
+# App Config
+app:
+  post:
+    words-per-minute: 200      # average reading speed
+    excerpt-length: 200        # characters in auto-generated excerpt
+    cache-ttl-minutes: 5       # how long to cache post feed in Redis
+    view-session-ttl-hours: 24 # how long to remember "user viewed this post"
+
+# Actuator
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+# Swagger
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: alpha
+    tryItOutEnabled: true
+
+# Logging
+logging:
+  level:
+    com.vellum.post: DEBUG
