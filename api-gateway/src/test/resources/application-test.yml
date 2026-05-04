@@ -1,0 +1,100 @@
+# Test profile overrides for API Gateway
+spring:
+  cloud:
+    gateway:
+      routes:
+        # --- Auth Service Mock Routes ---
+        - id: auth-service-public
+          uri: http://localhost:9999
+          predicates:
+            - Path=/api/auth/register,/api/auth/login,/api/auth/refresh,/api/auth/validate
+
+        - id: auth-service-protected
+          uri: http://localhost:9999
+          predicates:
+            - Path=/api/auth/**
+          filters:
+            - name: JwtAuthFilter
+
+        # --- Post Service Mock Routes ---
+        - id: post-service-public-read
+          uri: http://localhost:9998
+          predicates:
+            - Path=/api/posts/**
+            - Method=GET
+
+        - id: post-service-protected-write
+          uri: http://localhost:9998
+          predicates:
+            - Path=/api/posts/**
+            - Method=POST,PUT,DELETE,PATCH
+          filters:
+            - name: JwtAuthFilter
+
+        # --- Comment Service Mock Routes ---
+        - id: comment-service-public
+          uri: http://localhost:9997
+          predicates:
+            - Path=/api/comments/**
+            - Method=GET
+
+        - id: comment-service-protected
+          uri: http://localhost:9997
+          predicates:
+            - Path=/api/comments/**
+            - Method=POST,PUT,DELETE,PATCH
+          filters:
+            - name: JwtAuthFilter
+
+        # --- Category Service Mock Routes ---
+        - id: category-service-public
+          uri: http://localhost:9996
+          predicates:
+            - Path=/api/categories/**,/api/tags/**
+            - Method=GET
+
+        - id: category-service-protected
+          uri: http://localhost:9996
+          predicates:
+            - Path=/api/categories/**,/api/tags/**
+            - Method=POST,PUT,DELETE,PATCH
+          filters:
+            - name: JwtAuthFilter
+
+        # --- Media Service Mock Routes ---
+        - id: media-service-protected
+          uri: http://localhost:9995
+          predicates:
+            - Path=/api/media/**
+          filters:
+            - name: JwtAuthFilter
+
+        # --- Newsletter Service Mock Routes ---
+        - id: newsletter-service-public
+          uri: http://localhost:9994
+          predicates:
+            - Path=/api/newsletter/subscribe,/api/newsletter/confirm/**,/api/newsletter/unsubscribe/**
+            - Method=POST,GET
+
+        - id: newsletter-service-protected
+          uri: http://localhost:9994
+          predicates:
+            - Path=/api/newsletter/**
+          filters:
+            - name: JwtAuthFilter
+
+        # --- Notification Service Mock Routes ---
+        - id: notification-service-protected
+          uri: http://localhost:9993
+          predicates:
+            - Path=/api/notifications/**
+          filters:
+            - name: JwtAuthFilter
+
+jwt:
+  secret: ${JWT_SECRET:vellumSuperSecretKeyThatIsAtLeast256BitsLong1234567890}
+
+logging:
+  level:
+    com.vellum.gateway: DEBUG
+    org.springframework.cloud.gateway: DEBUG
