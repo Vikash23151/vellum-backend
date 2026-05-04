@@ -18,9 +18,11 @@ spring:
               - POST
               - PUT
               - DELETE
+              - PATCH
               - OPTIONS
             allowedHeaders: "*"
             allowCredentials: true
+            maxAge: 3600
 
       # Route definitions
       # Each route says: "if URL matches this pattern → send to this service"
@@ -31,7 +33,7 @@ spring:
         - id: auth-public
           uri: http://localhost:8081
           predicates:
-            - Path=/api/auth/register, /api/auth/login, /api/auth/refresh
+            - Path=/api/auth/register, /api/auth/login, /api/auth/refresh,/api/auth/validate
           # No JwtAuthFilter here → these are public
 
         # Protected auth routes (JWT needed)
@@ -56,7 +58,7 @@ spring:
           uri: http://localhost:8082
           predicates:
             - Path=/api/posts/**
-            - Method=POST, PUT, DELETE
+            - Method=POST, PUT, DELETE, PATCH
           filters:
             - name: JwtAuthFilter
 
@@ -71,7 +73,7 @@ spring:
           uri: http://localhost:8083
           predicates:
             - Path=/api/comments/**
-            - Method=POST, PUT, DELETE
+            - Method=POST, PUT, DELETE, PATCH
           filters:
             - name: JwtAuthFilter
 
@@ -86,7 +88,7 @@ spring:
           uri: http://localhost:8084
           predicates:
             - Path=/api/categories/**, /api/tags/**
-            - Method=POST, PUT, DELETE
+            - Method=POST, PUT, DELETE, PATCH
           filters:
             - name: JwtAuthFilter
 
@@ -98,7 +100,7 @@ spring:
           filters:
             - name: JwtAuthFilter
 
-        # Newsletter Service
+        # Newsletter Service- Public
         - id: newsletter-public
           uri: http://localhost:8086
           predicates:
@@ -106,6 +108,7 @@ spring:
               /api/newsletter/unsubscribe/**
             - Method=POST, GET
 
+        #Newsletter Service- Protected
         - id: newsletter-protected
           uri: http://localhost:8086
           predicates:
@@ -120,6 +123,45 @@ spring:
             - Path=/api/notifications/**
           filters:
             - name: JwtAuthFilter
+
+        # Swagger aggregation routes
+        # Gateway aggregates Swagger docs from all services
+        # Visit http://localhost:8080/swagger-ui.html
+        # Select service from dropdown to see its API docs
+        - id: auth-service-swagger
+          uri: http://localhost:8081
+          predicates:
+            - Path=/auth-service/v3/api-docs
+
+        - id: post-service-swagger
+          uri: http://localhost:8082
+          predicates:
+            - Path=/post-service/v3/api-docs
+
+        - id: comment-service-swagger
+          uri: http://localhost:8083
+          predicates:
+            - Path=/comment-service/v3/api-docs
+
+        - id: category-service-swagger
+          uri: http://localhost:8084
+          predicates:
+            - Path=/category-service/v3/api-docs
+
+        - id: media-service-swagger
+          uri: http://localhost:8085
+          predicates:
+            - Path=/media-service/v3/api-docs
+
+        - id: newsletter-service-swagger
+          uri: http://localhost:8086
+          predicates:
+            - Path=/newsletter-service/v3/api-docs
+
+        - id: notification-service-swagger
+          uri: http://localhost:8087
+          predicates:
+            - Path=/notification-service/v3/api-docs
 
 # JWT secret — must be IDENTICAL to auth-service's secret
 # Gateway uses this to validate tokens without calling auth-service
