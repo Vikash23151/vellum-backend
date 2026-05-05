@@ -1,0 +1,53 @@
+server:
+  port: 8083
+
+spring:
+  application:
+    name: vellum-comment-service
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/vellum_comment?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
+    username: vellum
+    password: vellum123
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        format_sql: true
+
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: vellum
+    password: vellum123
+    virtual-host: /
+
+app:
+  comment:
+    edit-window-minutes: 15
+    moderation-mode: AUTO_APPROVE
+    max-thread-depth: 2
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+
+logging:
+  level:
+    com.vellum.comment: DEBUG
