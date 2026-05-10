@@ -1,0 +1,37 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb;MODE=MySQL;DB_CLOSE_DELAY=-1
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 11MB
+
+# Fake AWS config for tests (S3 is mocked)
+aws:
+  s3:
+    bucket-name: test-bucket
+    region: us-east-1
+    access-key: test-key
+    secret-key: test-secret
+    cdn-url:
+
+app:
+  media:
+    allowed-types: image/jpeg,image/png,image/gif,image/webp,application/pdf
+    max-size-bytes: 10485760
+    s3-folder: uploads/
+
+logging:
+  level:
+    com.vellum.media: DEBUG

@@ -1,0 +1,73 @@
+server:
+  port: 8085
+
+spring:
+  application:
+    name: vellum-media-service
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/vellum_media?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
+    username: vellum
+    password: vellum123
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+
+  # File Upload Limits
+  servlet:
+    multipart:
+      # Maximum file size per upload
+      max-file-size: 10MB
+      # Maximum total request size (including form fields)
+      max-request-size: 11MB
+      enabled: true
+
+# AWS Configuration
+aws:
+  s3:
+    bucket-name: vellum-media-bucket
+    region: ${AWS_REGION:ap-south-1}
+    # Use environment variables or AWS IAM roles instead.
+    # Set via: export AWS_ACCESS_KEY_ID=xxx
+    #          export AWS_SECRET_ACCESS_KEY=yyy
+    access-key: ${AWS_ACCESS_KEY_ID:my-access-key}
+    secret-key: ${AWS_SECRET_ACCESS_KEY:my-secret-key}
+    # CloudFront CDN URL (optional — faster than direct S3)
+    # If not using CloudFront, media URL = S3 URL directly
+    cdn-url: ${CDN_URL:}
+
+# App Config
+app:
+  media:
+    # Allowed MIME types (Tika detects actual type)
+    allowed-types: image/jpeg,image/png,image/gif,image/webp,application/pdf
+    # Max file size in bytes (10MB = 10 * 1024 * 1024)
+    max-size-bytes: 10485760
+    # Folder prefix in S3 bucket
+    s3-folder: uploads/
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+
+logging:
+  level:
+    com.vellum.media: DEBUG
+    software.amazon.awssdk: WARN
