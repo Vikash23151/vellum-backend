@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${subject}">Newsletter</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont,
+            'Segoe UI', Roboto, sans-serif;
+            background: #f8f9fa; margin: 0; padding: 0;
+        }
+        .container {
+            max-width: 600px; margin: 40px auto;
+            background: #fff; border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+        .header {
+            background: linear-gradient(135deg, #2d3748, #4a5568);
+            padding: 32px 40px;
+        }
+        .header h1 { color: #fff; margin: 0; font-size: 24px; }
+        .header p { color: #a0aec0; margin: 4px 0 0; font-size: 12px; }
+        .subject {
+            padding: 24px 40px 0;
+            font-size: 22px; font-weight: 700;
+            color: #2d3748; line-height: 1.3;
+        }
+        .body {
+            padding: 24px 40px 40px;
+            color: #4a5568; line-height: 1.8;
+        }
+        .footer {
+            background: #f8f9fa; padding: 24px 40px;
+            text-align: center; color: #718096; font-size: 12px;
+            border-top: 1px solid #e2e8f0;
+        }
+        .footer a { color: #718096; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>Vellum Newsletter</h1>
+        <p>Your curated reading from Vellum Blog</p>
+    </div>
+
+    <div class="subject" th:text="${subject}">
+        Newsletter Subject
+    </div>
+
+    <!--
+        th:utext renders HTML (not escaped).
+        Content from admin contains HTML formatting.
+        Regular th:text would show raw HTML tags.
+        Use utext ONLY for trusted admin-provided content.
+    -->
+    <div class="body" th:utext="${content}">
+        Newsletter content goes here.
+    </div>
+
+    <div class="footer">
+        <p>© 2026 Vellum Blog. All rights reserved.</p>
+        <p>
+            You are receiving this because you subscribed to
+            Vellum Blog updates.
+        </p>
+        <p>
+            <a th:href="${unsubscribeUrl}">
+                Unsubscribe
+            </a>
+            · <a th:href="${blogUrl}">Visit Blog</a>
+        </p>
+    </div>
+</div>
+</body>
+</html>

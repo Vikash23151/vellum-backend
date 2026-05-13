@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Welcome to Vellum!</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont,
+            'Segoe UI', Roboto, sans-serif;
+            background: #f8f9fa;
+            margin: 0; padding: 0;
+        }
+        .container {
+            max-width: 600px; margin: 40px auto;
+            background: #fff; border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+        .header {
+            background: linear-gradient(135deg, #2d3748, #4a5568);
+            padding: 40px; text-align: center;
+        }
+        .header h1 { color: #fff; margin: 0; font-size: 32px; }
+        .header .emoji { font-size: 48px; margin-bottom: 8px; }
+        .body { padding: 40px; }
+        .text { color: #4a5568; line-height: 1.7; margin-bottom: 20px; }
+        .features {
+            background: #f7fafc; border-radius: 8px;
+            padding: 24px; margin: 24px 0;
+        }
+        .feature {
+            display: flex; align-items: flex-start;
+            margin-bottom: 16px;
+        }
+        .feature-icon { font-size: 20px; margin-right: 12px; }
+        .feature-text h4 {
+            margin: 0 0 4px; color: #2d3748; font-size: 14px;
+        }
+        .feature-text p {
+            margin: 0; color: #718096; font-size: 13px;
+        }
+        .btn-container { text-align: center; margin: 32px 0; }
+        .btn {
+            display: inline-block; background: #2d3748;
+            color: #fff !important; padding: 16px 40px;
+            border-radius: 8px; text-decoration: none;
+            font-size: 16px; font-weight: 600;
+        }
+        .footer {
+            background: #f8f9fa; padding: 24px 40px;
+            text-align: center; color: #718096; font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <div class="emoji">🎉</div>
+        <h1>Welcome to Vellum!</h1>
+    </div>
+
+    <div class="body">
+        <p class="text">
+            Hello <strong th:text="${subscriberName != null
+                ? subscriberName : 'Reader'}">Reader</strong>!
+        </p>
+
+        <p class="text">
+            Your subscription is confirmed! You're now part of the
+            Vellum community. Here's what you can look forward to:
+        </p>
+
+        <div class="features">
+            <div class="feature">
+                <span class="feature-icon">📝</span>
+                <div class="feature-text">
+                    <h4>Fresh Articles</h4>
+                    <p>Get notified when new posts are published.</p>
+                </div>
+            </div>
+            <div class="feature">
+                <span class="feature-icon">💡</span>
+                <div class="feature-text">
+                    <h4>Curated Content</h4>
+                    <p>Quality writing on topics you care about.</p>
+                </div>
+            </div>
+            <div class="feature">
+                <span class="feature-icon">🚀</span>
+                <div class="feature-text">
+                    <h4>Community</h4>
+                    <p>Connect with writers and readers.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="btn-container">
+            <a th:href="${blogUrl}" class="btn">
+                Start Reading →
+            </a>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>© 2026 Vellum Blog. All rights reserved.</p>
+        <p>
+            <a th:href="${unsubscribeUrl}"
+               style="color: #718096;">
+                Unsubscribe
+            </a>
+            from this newsletter.
+        </p>
+    </div>
+</div>
+</body>
+</html>

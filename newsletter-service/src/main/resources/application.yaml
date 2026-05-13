@@ -1,0 +1,86 @@
+server:
+  port: 8086
+
+spring:
+  application:
+    name: vellum-newsletter-service
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/vellum_newsletter?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
+    username: vellum
+    password: vellum123
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: vellum
+    password: vellum123
+    virtual-host: /
+
+  # Email (AWS SES via SMTP)
+  # For local dev: use Mailhog
+  # docker run -p 1025:1025 -p 8025:8025 mailhog/mailhog
+  mail:
+    host: ${MAIL_HOST:localhost}
+    port: ${MAIL_PORT:1025}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: ${MAIL_AUTH:false}
+          starttls:
+            enable: ${MAIL_TLS:false}
+        debug: false
+
+  # Thymeleaf templates location
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
+    mode: HTML
+    encoding: UTF-8
+
+# App Config
+app:
+  newsletter:
+    # From address for all emails
+    from-email: ${FROM_EMAIL:noreply@vellum.com}
+    from-name: ${FROM_NAME:Vellum Blog}
+    # Base URL for confirmation/unsubscribe links
+    # In production: https://yourdomain.com
+    base-url: ${BASE_URL:http://localhost:4200}
+    # How long confirmation token is valid (hours)
+    token-expiry-hours: 24
+    # Batch size for sending newsletter campaigns
+    # Avoid AWS SES rate limits: 14 emails/second
+    batch-size: 50
+    batch-delay-ms: 1000
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+
+logging:
+  level:
+    com.vellum.newsletter: DEBUG
+    org.springframework.mail: DEBUG
