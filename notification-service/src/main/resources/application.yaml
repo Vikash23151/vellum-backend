@@ -1,0 +1,54 @@
+server:
+  port: 8087
+
+spring:
+  application:
+    name: vellum-notification-service
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/vellum_notification?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
+    username: vellum
+    password: vellum123
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        format_sql: true
+
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: vellum
+    password: vellum123
+    virtual-host: /
+
+app:
+  notification:
+    # Auto-delete notifications older than N days
+    retention-days: 90
+    # Max notifications per user (oldest deleted when exceeded)
+    max-per-user: 100
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+
+logging:
+  level:
+    com.vellum.notification: DEBUG
